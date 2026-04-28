@@ -1,0 +1,11 @@
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+openpyxl>=3.1.0
+anthropic>=0.40.0
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# 反爬策略（按需安装，不装也能运行，auto 模式会自动跳过）
+cloudscraper>=1.2.71      # 策略2：绕过 Cloudflare
+selenium>=4.20.0          # 策略3：无头浏览器
+webdriver-manager>=4.0.0  # 自动下载 ChromeDriver
