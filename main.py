@@ -19,8 +19,13 @@ from agent import NinjaAgent
 from recommender import ClassRecommender
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="frontend", static_url_path="/static")
 CORS(app)
+
+@app.route("/")
+def index():
+    return app.send_static_file("index.html")
+
 
 # ── 初始化各模块 ──
 recommender = ClassRecommender()

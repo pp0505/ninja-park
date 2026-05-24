@@ -98,5 +98,5 @@ HEADERS = {
 
 # ─── Flask 配置 ───
 FLASK_HOST = "0.0.0.0"
-FLASK_PORT = 5000
+FLASK_PORT = int(os.getenv("PORT", 8000))
 FLASK_DEBUG = True
