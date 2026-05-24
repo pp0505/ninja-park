@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hong Kong Ninja Park</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f; --surface: #141420; --surface2: #1c1c2e;
+    --border: #2a2a40; --grid: #444466; --text: #e8e8f0;
+    --text-dim: #8888aa; --accent: #ff4757; --accent2: #ffa502;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC','Noto Sans SC',sans-serif; min-height: 100vh; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  input::placeholder { color: var(--text-dim); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .header { background: linear-gradient(135deg,#0a0a0f,#1a0a1e,#0a0a0f); border-bottom: 1px solid var(--border); padding: 20px 16px 12px; text-align: center; }
+  .logo { font-size: 28px; font-weight: 900; letter-spacing: 2px; }
+  .logo-ninja { color: var(--accent); }
+  .logo-park { color: var(--text); opacity: 0.6; }
+  .subtitle { font-size: 11px; color: var(--text-dim); letter-spacing: 4px; text-transform: uppercase; margin-top: 4px; }
+  .status { font-size: 10px; margin-top: 6px; }
+
+  .tabs { display: flex; gap: 4px; margin-top: 12px; background: var(--surface); border-radius: 10px; padding: 3px; }
+  .tab-btn { flex: 1; padding: 10px 8px; border: none; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; transition: all 0.2s; background: transparent; color: var(--text-dim); }
+  .tab-btn.active { background: var(--accent); color: #fff; }
+
+  .container { max-width: 500px; margin: 0 auto; padding: 20px 16px; }
+
+  /* Upload */
+  .upload-box { background: var(--surface); border-radius: 12px; padding: 14px 16px; border: 1px dashed var(--border); margin-bottom: 20px; text-align: center; }
+  .upload-btn { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); padding: 8px 20px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px; }
+  .upload-info { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+
+  /* Dimensions */
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .section-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 14px; }
+  .dim-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .dim-btn { padding: 10px 18px; border-radius: 20px; cursor: pointer; border: 2px solid var(--border); background: var(--surface); color: var(--text); font-family: inherit; font-size: 14px; transition: all 0.2s; }
+  .dim-btn.active { border-color: var(--accent); background: rgba(255,71,87,0.15); color: var(--accent); font-weight: 600; }
+
+  .cta-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; cursor: pointer; background: linear-gradient(135deg,var(--accent),#ff6b81); color: #fff; font-family: inherit; font-size: 16px; font-weight: 700; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(255,71,87,0.3); }
+
+  /* Result cards */
+  .radar-box { background: var(--surface); border-radius: 16px; padding: 16px; border: 1px solid var(--border); margin-bottom: 16px; text-align: center; }
+  .legend { display: flex; justify-content: center; gap: 16px; margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 12px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+  .result-card { border-radius: 14px; padding: 16px 18px; margin-bottom: 10px; position: relative; overflow: hidden; }
+  .result-card.best { border: 2px solid; }
+  .result-card:not(.best) { background: var(--surface); border: 1px solid var(--border); }
+  .best-tag { position: absolute; top: 0; right: 0; color: #fff; font-size: 10px; font-weight: 700; padding: 4px 12px; border-radius: 0 0 0 10px; }
+  .result-header { display: flex; align-items: center; gap: 10px; }
+  .result-emoji { font-size: 32px; }
+  .result-name { font-size: 17px; font-weight: 700; }
+  .result-label { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .result-pct { font-size: 28px; font-weight: 900; }
+  .progress-bg { margin-top: 10px; background: var(--surface2); border-radius: 6px; height: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; }
+  .breakdown { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .breakdown-tag { font-size: 11px; background: var(--surface2); border-radius: 6px; padding: 3px 8px; color: var(--text-dim); }
+
+  .book-link { display: block; text-align: center; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; color: var(--accent); font-weight: 600; font-size: 14px; text-decoration: none; margin-top: 12px; }
+
+  /* Chat */
+  .chat-wrapper { display: flex; flex-direction: column; height: calc(100vh - 150px); }
+  .chat-messages { flex: 1; overflow: auto; padding: 16px; }
+  .chat-inner { max-width: 500px; margin: 0 auto; }
+  .msg { display: flex; margin-bottom: 12px; }
+  .msg.user { justify-content: flex-end; }
+  .msg.assistant { justify-content: flex-start; }
+  .bubble { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+  .msg.user .bubble { background: linear-gradient(135deg,var(--accent),#ff6b81); color: #fff; border-bottom-right-radius: 4px; }
+  .msg.assistant .bubble { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .typing { animation: pulse 1.2s infinite; color: var(--text-dim); }
+
+  .quick-bar { padding: 0 16px; max-width: 500px; margin: 0 auto; width: 100%; }
+  .quick-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; }
+  .quick-btn { white-space: nowrap; padding: 6px 14px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font-family: inherit; font-size: 12px; cursor: pointer; flex-shrink: 0; }
+
+  .input-bar { padding: 8px 16px 16px; max-width: 500px; margin: 0 auto; width: 100%; }
+  .input-wrap { display: flex; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 6px 8px 6px 16px; }
+  .input-wrap input { flex: 1; border: none; outline: none; background: transparent; color: var(--text); font-family: inherit; font-size: 14px; }
+  .send-btn { width: 40px; height: 40px; border-radius: 10px; border: none; cursor: pointer; color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo"><span class="logo-ninja">NINJA</span><span class="logo-park"> PARK</span></div>
+  <div class="subtitle">Hong Kong Obstacle Training</div>
+  <div class="status" id="status">⏳ 连接中...</div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('recommend')">🎯 课程推荐</button>
+    <button class="tab-btn" onclick="switchTab('agent')">🥷 智能助手</button>
+  </div>
+</div>
+
+<!-- ═══ RECOMMEND TAB ═══ -->
+<div id="tab-recommend" class="container">
+  <div class="upload-box">
+    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="uploadExcel(this)">
+    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">📁 上传评分表 Upload Excel</button>
+    <div class="upload-info" id="uploadInfo">已载入 3 个班型 · 5 个维度</div>
+  </div>
+
+  <div class="section-title">你想提升什么？</div>
+  <div class="section-sub">选择你最想改善的方面（可多选）</div>
+  <div class="dim-grid" id="dimGrid"></div>
+
+  <button class="cta-btn hidden" id="ctaBtn" onclick="showResults()">查看推荐结果 →</button>
+  <div id="resultsArea"></div>
+</div>
+
+<!-- ═══ AGENT TAB ═══ -->
+<div id="tab-agent" class="chat-wrapper hidden">
+  <div class="chat-messages">
+    <div class="chat-inner" id="chatMessages">
+      <div class="msg assistant"><div class="bubble">你好！我是 Hong Kong Ninja Park 的智能助手 🥷
+歡迎查詢任何關於訓練班、自由練習、包場活動的問題！</div></div>
+    </div>
+  </div>
+  <div class="quick-bar">
+    <div class="quick-scroll">
+      <button class="quick-btn" onclick="setInput('有什么课程？')">有什么课程？</button>
+      <button class="quick-btn" onclick="setInput('收费多少？')">收费多少？</button>
+      <button class="quick-btn" onclick="setInput('Open Gym时间？')">Open Gym时间？</button>
+      <button class="quick-btn" onclick="setInput('如何预约？')">如何预约？</button>
+    </div>
+  </div>
+  <div class="input-bar">
+    <div class="input-wrap">
+      <input id="chatInput" placeholder="输入你的问题..." onkeydown="if(event.key==='Enter')sendMessage()">
+      <button class="send-btn" id="sendBtn" style="background:var(--surface2)" onclick="sendMessage()">↑</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ State ═══
+const API = '';  // same origin
+let classData = {
+  dimensions: ["上肢力量","协调","柔韧性","放松","技巧"],
+  classes: [
+    {name:"忍者班", scores:[7,9,6,10,9], color:"#e63946", emoji:"🥷"},
+    {name:"体适能班", scores:[7,3,4,2,3], color:"#2a9d8f", emoji:"💪"},
+    {name:"体操班", scores:[5,9,9,5,9], color:"#e9c46a", emoji:"🤸"},
+  ]
+};
+let selectedDims = [];
+let chatHistory = [];
+let loading = false;
+
+// ═══ Init ═══
+fetch(API+'/api/health').then(r=>r.json()).then(d=>{
+  document.getElementById('status').innerHTML = '● 已连接 · AI: '+d.ai_provider;
+  document.getElementById('status').style.color = '#2ed573';
+  return fetch(API+'/api/recommend/data');
+}).then(r=>r.json()).then(d=>{
+  classData = d;
+  renderDimensions();
+}).catch(()=>{
+  document.getElementById('status').innerHTML = '○ 后端未连接';
+  document.getElementById('status').style.color = 'var(--accent2)';
+  renderDimensions();
+});
+
+// ═══ Tabs ═══
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', (i===0&&tab==='recommend')||(i===1&&tab==='agent'));
+  });
+  document.getElementById('tab-recommend').classList.toggle('hidden', tab!=='recommend');
+  document.getElementById('tab-agent').classList.toggle('hidden', tab!=='agent');
+}
+
+// ═══ Recommend ═══
+function renderDimensions() {
+  const grid = document.getElementById('dimGrid');
+  grid.innerHTML = classData.dimensions.map((d,i)=>
+    `<button class="dim-btn" onclick="toggleDim(${i})">${d}</button>`
+  ).join('');
+  document.getElementById('uploadInfo').textContent =
+    `已载入 ${classData.classes.length} 个班型 · ${classData.dimensions.length} 个维度`;
+}
+
+function toggleDim(i) {
+  const idx = selectedDims.indexOf(i);
+  if(idx>-1) selectedDims.splice(idx,1); else selectedDims.push(i);
+  document.querySelectorAll('.dim-btn').forEach((b,j)=>{
+    b.classList.toggle('active', selectedDims.includes(j));
+  });
+  document.getElementById('ctaBtn').classList.toggle('hidden', selectedDims.length===0);
+  document.getElementById('resultsArea').innerHTML = '';
+}
+
+function showResults() {
+  if(!selectedDims.length) return;
+  const results = classData.classes.map(cls=>{
+    const total = selectedDims.reduce((s,di)=>s+cls.scores[di],0);
+    const max = selectedDims.length*10;
+    return {...cls, total, pct:Math.round(total/max*100)};
+  }).sort((a,b)=>b.total-a.total);
+
+  let html = `<div class="radar-box">${buildRadarSVG()}<div class="legend">`;
+  classData.classes.forEach(c=>{
+    html+=`<div class="legend-item"><div class="legend-dot" style="background:${c.color}"></div>${c.name}</div>`;
+  });
+  html+=`</div></div>`;
+
+  results.forEach((cls,i)=>{
+    const isBest = i===0;
+    html+=`<div class="result-card ${isBest?'best':''}" style="${isBest?`background:linear-gradient(135deg,${cls.color}18,${cls.color}08);border-color:${cls.color}`:''}">`;
+    if(isBest) html+=`<div class="best-tag" style="background:${cls.color}">最佳推荐 BEST</div>`;
+    html+=`<div class="result-header"><div class="result-emoji">${cls.emoji}</div><div style="flex:1"><div class="result-name">${cls.name}</div><div class="result-label">匹配度 Match</div></div><div class="result-pct" style="color:${cls.color}">${cls.pct}%</div></div>`;
+    html+=`<div class="progress-bg"><div class="progress-fill" style="width:${cls.pct}%;background:linear-gradient(90deg,${cls.color},${cls.color}aa)"></div></div>`;
+    html+=`<div class="breakdown">`;
+    selectedDims.forEach(di=>{
+      html+=`<div class="breakdown-tag">${classData.dimensions[di]}: <span style="color:${cls.color};font-weight:600">${cls.scores[di]}</span>/10</div>`;
+    });
+    html+=`</div></div>`;
+  });
+
+  html+=`<a class="book-link" href="https://sasukeninjaparkauau.auau.io/zh-HK/" target="_blank">立即预约 → Book Now</a>`;
+  document.getElementById('resultsArea').innerHTML = html;
+}
+
+function buildRadarSVG() {
+  const size=280, cx=size/2, cy=size/2, r=size*0.38;
+  const n=classData.dimensions.length, step=2*Math.PI/n;
+  const pt=(i,v,mx=10)=>{const a=step*i-Math.PI/2,d=v/mx*r;return[cx+d*Math.cos(a),cy+d*Math.sin(a)];};
+
+  let svg=`<svg viewBox="0 0 ${size} ${size}" style="width:100%;max-width:${size}px">`;
+  // Grid
+  for(let lv=1;lv<=5;lv++){
+    const lr=lv/5*r;
+    const pts=Array.from({length:n},(_,i)=>{const a=step*i-Math.PI/2;return`${cx+lr*Math.cos(a)},${cy+lr*Math.sin(a)}`;}).join(' ');
+    svg+=`<polygon points="${pts}" fill="none" stroke="${getComputedStyle(document.body).getPropertyValue('--grid')}" stroke-width="0.5" opacity="0.4"/>`;
+  }
+  // Axes + labels
+  classData.dimensions.forEach((d,i)=>{
+    const[ex,ey]=pt(i,10),[lx,ly]=pt(i,12.5);
+    const sel=selectedDims.includes(i);
+    svg+=`<line x1="${cx}" y1="${cy}" x2="${ex}" y2="${ey}" stroke="#444466" stroke-width="0.5" opacity="0.3"/>`;
+    svg+=`<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="${sel?700:400}" fill="${sel?'#ff4757':'#8888aa'}">${d}</text>`;
+  });
+  // Data
+  classData.classes.forEach(cls=>{
+    const pts=classData.dimensions.map((_,i)=>pt(i,cls.scores[i]).join(',')).join(' ');
+    svg+=`<polygon points="${pts}" fill="${cls.color}" fill-opacity="0.12" stroke="${cls.color}" stroke-width="2"/>`;
+    cls.scores.forEach((s,i)=>{const[px,py]=pt(i,s);svg+=`<circle cx="${px}" cy="${py}" r="3" fill="${cls.color}"/>`;});
+  });
+  svg+=`</svg>`;
+  return svg;
+}
+
+// ═══ Excel Upload ═══
+async function uploadExcel(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const res = await fetch(API+'/api/recommend/upload',{method:'POST',body:fd});
+    const data = await res.json();
+    if(data.success) {
+      classData = data.data;
+      selectedDims = [];
+      renderDimensions();
+      document.getElementById('resultsArea').innerHTML='';
+      document.getElementById('ctaBtn').classList.add('hidden');
+      alert('✅ '+data.message);
+    } else { alert('❌ '+data.error); }
+  } catch(e) { alert('上传失败: '+e.message); }
+  input.value='';
+}
+
+// ═══ Chat ═══
+function setInput(text) { document.getElementById('chatInput').value=text; updateSendBtn(); }
+
+function updateSendBtn() {
+  const has = document.getElementById('chatInput').value.trim().length>0;
+  document.getElementById('sendBtn').style.background = has?'var(--accent)':'var(--surface2)';
+}
+document.getElementById('chatInput').addEventListener('input', updateSendBtn);
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text||loading) return;
+  input.value=''; updateSendBtn();
+
+  appendMsg('user', text);
+  chatHistory.push({role:'user',content:text});
+  loading=true;
+
+  const loadingEl = appendMsg('assistant','<span class="typing">思考中...</span>',true);
+
+  try {
+    const res = await fetch(API+'/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:text, history:chatHistory.slice(0,-1)})
+    });
+    const data = await res.json();
+    const reply = data.reply||data.error||'无法获取回复';
+    loadingEl.querySelector('.bubble').textContent = reply;
+    chatHistory.push({role:'assistant',content:reply});
+  } catch(e) {
+    loadingEl.querySelector('.bubble').textContent = '网络错误，请稍后再试。如有急事可致电 9832 2052。';
+  }
+  loading=false;
+}
+
+function appendMsg(role, text, isHtml=false) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg '+role;
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  if(isHtml) bubble.innerHTML=text; else bubble.textContent=text;
+  div.appendChild(bubble);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+</script>
+</body>
+</html>
